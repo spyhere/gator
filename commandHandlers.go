@@ -14,7 +14,12 @@ func handlerLogin(state *state, cmd command) error {
 		return fmt.Errorf("error: expecting [username] argument for login command!")
 	}
 	username := cmd.args[0]
-	err := state.cfg.SetUser(username)
+	_, err := state.db.GetUser(context.Background(), username)
+	if err != nil {
+		fmt.Printf("No users found for '%s'! Register this user first!\n", username)
+		return err
+	}
+	err = state.cfg.SetUser(username)
 	if err != nil {
 		return err
 	}
