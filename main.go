@@ -29,6 +29,7 @@ func main() {
 	}
 	commands.register("login", handlerLogin)
 	commands.register("register", handlerRegister)
+	commands.register("reset", handleReset)
 
 	newCommand, err := extractCommand(os.Args)
 	if err != nil {

@@ -52,3 +52,12 @@ func handlerRegister(state *state, cmd command) error {
 	fmt.Println(user.CreatedAt)
 	return nil
 }
+
+func handleReset(state *state, _ command) error {
+	err := state.db.TruncateUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Println("Successfuly reseted the 'users' table.")
+	return nil
+}
