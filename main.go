@@ -27,14 +27,11 @@ func main() {
 	commands := commands{
 		all: map[string]commandHandler{},
 	}
-	commands.register("login", handlerLogin)
-	commands.register("register", handlerRegister)
-	commands.register("reset", handleReset)
+	registerCommands(&commands)
 
 	newCommand, err := extractCommand(os.Args)
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 	if err := commands.run(&state, newCommand); err != nil {
 		log.Fatal(err)
