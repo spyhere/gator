@@ -28,6 +28,7 @@ func main() {
 		all: map[string]commandHandler{},
 	}
 	commands.register("login", handlerLogin)
+	commands.register("register", handlerRegister)
 
 	newCommand, err := extractCommand(os.Args)
 	if err != nil {

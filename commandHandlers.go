@@ -1,6 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/spyhere/gator/internal/database"
+)
 
 func handlerLogin(state *state, cmd command) error {
 	if len(cmd.args) == 0 {
@@ -12,5 +19,31 @@ func handlerLogin(state *state, cmd command) error {
 		return err
 	}
 	fmt.Printf("New user '%s' has been set!\n", username)
+	return nil
+}
+
+func handlerRegister(state *state, cmd command) error {
+	if len(cmd.args) == 0 {
+		return fmt.Errorf("error: expecting [username] argument for register command!")
+	}
+	username := cmd.args[0]
+	now := time.Now()
+	newUser := database.CreateUserParams{
+		ID:        uuid.New(),
+		Name:      username,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	user, err := state.db.CreateUser(context.Background(), newUser)
+	if err != nil {
+		fmt.Printf("User '%s' already exists!\n", username)
+		return err
+	}
+	state.cfg.SetUser(user.Name)
+	fmt.Println("New user has been created.")
+	fmt.Println(user.ID)
+	fmt.Println(user.Name)
+	fmt.Println(user.UpdatedAt)
+	fmt.Println(user.CreatedAt)
 	return nil
 }
