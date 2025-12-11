@@ -16,7 +16,3 @@ type command struct {
 }
 
 type commandHandler func(*state, command) error
-
-type commands struct {
-	all map[string]commandHandler
-}

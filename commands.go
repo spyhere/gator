@@ -1,5 +1,9 @@
 package main
 
+type commands struct {
+	all map[string]commandHandler
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	return c.all[cmd.name](s, cmd)
 }
