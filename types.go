@@ -1,9 +1,13 @@
 package main
 
-import "github.com/spyhere/gator/internal/config"
+import (
+	"github.com/spyhere/gator/internal/config"
+	"github.com/spyhere/gator/internal/database"
+)
 
 type state struct {
-	c *config.Config
+	cfg *config.Config
+	db  *database.Queries
 }
 
 type command struct {

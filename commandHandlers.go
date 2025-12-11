@@ -7,7 +7,7 @@ func handlerLogin(state *state, cmd command) error {
 		return fmt.Errorf("error: expecting [username] argument for login command!")
 	}
 	username := cmd.args[0]
-	err := state.c.SetUser(username)
+	err := state.cfg.SetUser(username)
 	if err != nil {
 		return err
 	}
