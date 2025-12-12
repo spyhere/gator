@@ -176,8 +176,7 @@ func handleFollow(state *state, cmd command, user database.User) error {
 }
 
 func handleFollowing(state *state, _ command, user database.User) error {
-	username := state.cfg.CurrentUserName
-	feeds, err := state.db.GetUserFeeds(context.Background(), username)
+	feeds, err := state.db.GetUserFeeds(context.Background(), user.ID)
 	if err != nil {
 		return err
 	}

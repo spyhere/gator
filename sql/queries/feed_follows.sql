@@ -23,5 +23,5 @@ INNER JOIN feed_follows
 ON feed_follows.user_id = users.id
 INNER JOIN feeds
 ON feeds.id = feed_follows.feed_id
-WHERE users.name = $1;
+WHERE users.id = $1;
 

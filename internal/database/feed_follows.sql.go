@@ -77,7 +77,7 @@ INNER JOIN feed_follows
 ON feed_follows.user_id = users.id
 INNER JOIN feeds
 ON feeds.id = feed_follows.feed_id
-WHERE users.name = $1
+WHERE users.id = $1
 `
 
 type GetUserFeedsRow struct {
@@ -86,8 +86,8 @@ type GetUserFeedsRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) GetUserFeeds(ctx context.Context, name string) ([]GetUserFeedsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserFeeds, name)
+func (q *Queries) GetUserFeeds(ctx context.Context, id uuid.UUID) ([]GetUserFeedsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserFeeds, id)
 	if err != nil {
 		return nil, err
 	}
