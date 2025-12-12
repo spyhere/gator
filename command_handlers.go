@@ -10,6 +10,8 @@ import (
 	"github.com/spyhere/gator/internal/rss"
 )
 
+const TIME_FORMAT = "15:04:05 02-01-2006"
+
 func handlerLogin(state *state, cmd command) error {
 	if len(cmd.args) == 0 {
 		return fmt.Errorf("error: expecting [username] argument for login command!")
@@ -48,7 +50,7 @@ func handlerRegister(state *state, cmd command) error {
 	state.cfg.SetUser(user.Name)
 	fmt.Println("New user has been created.")
 	fmt.Println(user.Name)
-	fmt.Println(user.UpdatedAt.Format("15:04:05 02-01-2006"))
+	fmt.Println(user.UpdatedAt.Format(TIME_FORMAT))
 	return nil
 }
 
@@ -114,7 +116,7 @@ func handleAddFeed(state *state, cmd command) error {
 	fmt.Printf(
 		"New feed with name '%s' successfuly created at %s\n",
 		feed.Name,
-		feed.CreatedAt.Format("15:04:05 02-01-2006"),
+		feed.CreatedAt.Format(TIME_FORMAT),
 	)
 	return nil
 }
@@ -129,6 +131,42 @@ func handleFeeds(state *state, _ command) error {
 		content = append(content, []string{it.Name, it.Url, it.Creator})
 	}
 	res, err := formatContentWithTitle([]string{"Name", "URL", "Creator"}, content)
+	if err != nil {
+		return err
+	}
+	fmt.Println(res)
+	return nil
+}
+
+func handleFollow(state *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("Expecting 1 argument: [url]")
+	}
+	ctx := context.Background()
+	username := state.cfg.CurrentUserName
+	user, err := state.db.GetUser(ctx, username)
+	if err != nil {
+		return err
+	}
+	url := cmd.args[0]
+	feed, err := state.db.GetFeed(ctx, url)
+	if err != nil {
+		return err
+	}
+	now := time.Now()
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: now,
+		UpdatedAt: now,
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	}
+	feedFollow, err := state.db.CreateFeedFollow(ctx, feedFollowParams)
+	if err != nil {
+		return err
+	}
+	body := [][]string{{feedFollow.UserName, feedFollow.FeedName, feedFollow.UpdatedAt.Format(TIME_FORMAT)}}
+	res, err := formatContentWithTitle([]string{"User", "Feed", "Updated At"}, body)
 	if err != nil {
 		return err
 	}
