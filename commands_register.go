@@ -9,4 +9,5 @@ func registerCommands(c *commands) {
 	c.register("addfeed", handleAddFeed)
 	c.register("feeds", handleFeeds)
 	c.register("follow", handleFollow)
+	c.register("following", handleFollowing)
 }

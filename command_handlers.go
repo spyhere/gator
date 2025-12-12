@@ -113,11 +113,23 @@ func handleAddFeed(state *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf(
-		"New feed with name '%s' successfuly created at %s\n",
-		feed.Name,
-		feed.CreatedAt.Format(TIME_FORMAT),
-	)
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: now,
+		UpdatedAt: now,
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	}
+	_, err = state.db.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		return err
+	}
+	body := [][]string{{feed.Name, feed.Url, feed.UpdatedAt.Format(TIME_FORMAT)}}
+	res, err := formatContentWithTitle([]string{"Name", "Url", "Updated At"}, body)
+	if err != nil {
+		return err
+	}
+	fmt.Println(res)
 	return nil
 }
 
@@ -167,6 +179,24 @@ func handleFollow(state *state, cmd command) error {
 	}
 	body := [][]string{{feedFollow.UserName, feedFollow.FeedName, feedFollow.UpdatedAt.Format(TIME_FORMAT)}}
 	res, err := formatContentWithTitle([]string{"User", "Feed", "Updated At"}, body)
+	if err != nil {
+		return err
+	}
+	fmt.Println(res)
+	return nil
+}
+
+func handleFollowing(state *state, _ command) error {
+	username := state.cfg.CurrentUserName
+	feeds, err := state.db.GetUserFeeds(context.Background(), username)
+	if err != nil {
+		return err
+	}
+	body := [][]string{}
+	for _, it := range feeds {
+		body = append(body, []string{it.FeedName, it.Url, it.UpdatedAt.Format(TIME_FORMAT)})
+	}
+	res, err := formatContentWithTitle([]string{"Feed", "Url", "Updated At"}, body)
 	if err != nil {
 		return err
 	}
