@@ -89,15 +89,9 @@ func handleAgg(state *state, _ command) error {
 	return nil
 }
 
-func handleAddFeed(state *state, cmd command) error {
+func handleAddFeed(state *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("Expecting 2 arguments: [name] and [url], instead got %v\n", cmd.args)
-	}
-	username := state.cfg.CurrentUserName
-	user, err := state.db.GetUser(context.Background(), username)
-	if err != nil {
-		fmt.Printf("No users found for '%s'! Register this user first!\n", username)
-		return err
 	}
 	feedName, feedUrl := cmd.args[0], cmd.args[1]
 	now := time.Now()
@@ -150,16 +144,11 @@ func handleFeeds(state *state, _ command) error {
 	return nil
 }
 
-func handleFollow(state *state, cmd command) error {
+func handleFollow(state *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("Expecting 1 argument: [url]")
 	}
 	ctx := context.Background()
-	username := state.cfg.CurrentUserName
-	user, err := state.db.GetUser(ctx, username)
-	if err != nil {
-		return err
-	}
 	url := cmd.args[0]
 	feed, err := state.db.GetFeedByUrl(ctx, url)
 	if err != nil {
@@ -186,7 +175,7 @@ func handleFollow(state *state, cmd command) error {
 	return nil
 }
 
-func handleFollowing(state *state, _ command) error {
+func handleFollowing(state *state, _ command, user database.User) error {
 	username := state.cfg.CurrentUserName
 	feeds, err := state.db.GetUserFeeds(context.Background(), username)
 	if err != nil {
