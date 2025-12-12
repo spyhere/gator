@@ -7,4 +7,5 @@ func registerCommands(c *commands) {
 	c.register("users", handleUsers)
 	c.register("agg", handleAgg)
 	c.register("addfeed", handleAddFeed)
+	c.register("feeds", handleFeeds)
 }

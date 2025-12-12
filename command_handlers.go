@@ -47,10 +47,8 @@ func handlerRegister(state *state, cmd command) error {
 	}
 	state.cfg.SetUser(user.Name)
 	fmt.Println("New user has been created.")
-	fmt.Println(user.ID)
 	fmt.Println(user.Name)
-	fmt.Println(user.UpdatedAt)
-	fmt.Println(user.CreatedAt)
+	fmt.Println(user.UpdatedAt.Format("15:04:05 02-01-2006"))
 	return nil
 }
 
@@ -118,5 +116,22 @@ func handleAddFeed(state *state, cmd command) error {
 		feed.Name,
 		feed.CreatedAt.Format("15:04:05 02-01-2006"),
 	)
+	return nil
+}
+
+func handleFeeds(state *state, _ command) error {
+	feeds, err := state.db.GetFeeds(context.Background())
+	if err != nil {
+		return nil
+	}
+	content := [][]string{}
+	for _, it := range feeds {
+		content = append(content, []string{it.Name, it.Url, it.Creator})
+	}
+	res, err := formatContentWithTitle([]string{"Name", "URL", "Creator"}, content)
+	if err != nil {
+		return err
+	}
+	fmt.Println(res)
 	return nil
 }
