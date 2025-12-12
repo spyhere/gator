@@ -12,13 +12,16 @@ INNER JOIN feeds
 ON feeds.id = feed_follows_ins.feed_id
 INNER JOIN users
 ON users.id = feed_follows_ins.user_id;
--- WITH feed_item AS (
---   INSERT INTO feeds(id, created_at, updated_at, name, url, user_id)
---   VALUES ($1, $2, $3, $4, $5, $6)
---     ON CONFLICT (url) DO NOTHING
---   RETURNING id
--- )
--- INSERT INTO feed_follows(id, created_at, updated_at, user_id, feed_id)
--- SELECT $1, $2, $3, $6, id FROM feed_item
--- RETURNING *;
+
+-- name: GetUserFeeds :many
+SELECT
+  feeds.name AS feed_name,
+  feeds.url,
+  feed_follows.updated_at
+FROM users
+INNER JOIN feed_follows
+ON feed_follows.user_id = users.id
+INNER JOIN feeds
+ON feeds.id = feed_follows.feed_id
+WHERE users.name = $1;
 
