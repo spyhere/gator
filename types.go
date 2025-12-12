@@ -9,10 +9,3 @@ type state struct {
 	cfg *config.Config
 	db  *database.Queries
 }
-
-type command struct {
-	name string
-	args []string
-}
-
-type commandHandler func(*state, command) error

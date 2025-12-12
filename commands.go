@@ -2,6 +2,13 @@ package main
 
 import "fmt"
 
+type command struct {
+	name string
+	args []string
+}
+
+type commandHandler func(*state, command) error
+
 type commands struct {
 	all map[string]commandHandler
 }
