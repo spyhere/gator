@@ -10,4 +10,5 @@ func registerCommands(c *commands) {
 	c.register("feeds", handleFeeds)
 	c.register("follow", middlewareLoggedIn(handleFollow))
 	c.register("following", middlewareLoggedIn(handleFollowing))
+	c.register("unfollow", middlewareLoggedIn(handleUnfollow))
 }

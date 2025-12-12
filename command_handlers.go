@@ -59,7 +59,7 @@ func handleReset(state *state, _ command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Successfuly reseted the 'users' table.")
+	fmt.Println("Successfully reset the 'users' table.")
 	return nil
 }
 
@@ -189,5 +189,26 @@ func handleFollowing(state *state, _ command, user database.User) error {
 		return err
 	}
 	fmt.Println(res)
+	return nil
+}
+
+func handleUnfollow(state *state, cmd command, user database.User) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("Expecting [url] argument.")
+	}
+	ctx := context.Background()
+	url := cmd.args[0]
+	feed, err := state.db.GetFeedByUrl(ctx, url)
+	if err != nil {
+		return err
+	}
+	deleteUserFeedParams := database.DeleteFeedFollowParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	}
+	if err = state.db.DeleteFeedFollow(ctx, deleteUserFeedParams); err != nil {
+		return fmt.Errorf("You are not following current feed")
+	}
+	fmt.Println("You have successfully unfollowed", url)
 	return nil
 }
