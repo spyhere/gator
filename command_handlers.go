@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spyhere/gator/internal/database"
+	"github.com/spyhere/gator/internal/rss"
 )
 
 func handlerLogin(state *state, cmd command) error {
@@ -76,5 +77,14 @@ func handleUsers(state *state, _ command) error {
 		res += fmt.Sprintf("* %s %s\n", it.Name, isCurrent)
 	}
 	fmt.Print(res)
+	return nil
+}
+
+func handleAgg(state *state, _ command) error {
+	rssFeed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v\n", *rssFeed)
 	return nil
 }

@@ -5,4 +5,5 @@ func registerCommands(c *commands) {
 	c.register("register", handlerRegister)
 	c.register("reset", handleReset)
 	c.register("users", handleUsers)
+	c.register("agg", handleAgg)
 }
