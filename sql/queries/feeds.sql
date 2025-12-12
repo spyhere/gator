@@ -15,6 +15,6 @@ FROM feeds
 INNER JOIN users
 ON users.id = feeds.user_id;
 
--- name: GetFeed :one
+-- name: GetFeedByUrl :one
 SELECT * FROM feeds
 WHERE url = $1;

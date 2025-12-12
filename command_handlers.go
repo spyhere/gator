@@ -161,7 +161,7 @@ func handleFollow(state *state, cmd command) error {
 		return err
 	}
 	url := cmd.args[0]
-	feed, err := state.db.GetFeed(ctx, url)
+	feed, err := state.db.GetFeedByUrl(ctx, url)
 	if err != nil {
 		return err
 	}
