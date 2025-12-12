@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/spyhere/gator/internal/database"
+)
 
 type command struct {
 	name string
@@ -8,6 +12,7 @@ type command struct {
 }
 
 type commandHandler func(*state, command) error
+type commandHandlerLoggedIn func(*state, command, database.User) error
 
 type commands struct {
 	all map[string]commandHandler
