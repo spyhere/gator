@@ -55,7 +55,7 @@ func handlerRegister(state *state, cmd command) error {
 }
 
 func handleReset(state *state, _ command) error {
-	err := state.db.TruncateUsers(context.Background())
+	err := state.db.ClearUsers(context.Background())
 	if err != nil {
 		return err
 	}
