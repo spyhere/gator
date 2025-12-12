@@ -88,3 +88,35 @@ func handleAgg(state *state, _ command) error {
 	fmt.Printf("%v\n", *rssFeed)
 	return nil
 }
+
+func handleAddFeed(state *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		return fmt.Errorf("Expecting 2 arguments: [name] and [url], instead got %v\n", cmd.args)
+	}
+	username := state.cfg.CurrentUserName
+	user, err := state.db.GetUser(context.Background(), username)
+	if err != nil {
+		fmt.Printf("No users found for '%s'! Register this user first!\n", username)
+		return err
+	}
+	feedName, feedUrl := cmd.args[0], cmd.args[1]
+	now := time.Now()
+	newFeed := database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: now,
+		UpdatedAt: now,
+		Name:      feedName,
+		Url:       feedUrl,
+		UserID:    user.ID,
+	}
+	feed, err := state.db.CreateFeed(context.Background(), newFeed)
+	if err != nil {
+		return err
+	}
+	fmt.Printf(
+		"New feed with name '%s' successfuly created at %s\n",
+		feed.Name,
+		feed.CreatedAt.Format("15:04:05 02-01-2006"),
+	)
+	return nil
+}
