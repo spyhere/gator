@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/spyhere/gator/internal/database"
 	"github.com/spyhere/gator/internal/rss"
 )
@@ -92,7 +96,9 @@ func handleAgg(state *state, cmd command) error {
 	fmt.Println("Collecting feeds every", timeBetweenReq)
 	ticker := time.NewTicker(timeBetweenReq)
 	for ; ; <-ticker.C {
-		scrapeFeeds(state)
+		if err = scrapeFeeds(state); err != nil {
+			return err
+		}
 	}
 }
 
@@ -233,7 +239,24 @@ func scrapeFeeds(state *state) error {
 	err = state.db.MarkFeedFetched(ctx, feed.ID)
 	fmt.Println(rssFeed.Channel.Title)
 	for _, it := range rssFeed.Channel.Item {
-		fmt.Println(it)
+		pubDate, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", it.PubDate)
+		if err != nil {
+			return fmt.Errorf("Error parsing:\n%s", err.Error())
+		}
+		_, err = state.db.CreatePost(ctx, database.CreatePostParams{
+			ID:          uuid.New(),
+			Title:       it.Title,
+			Url:         it.Link,
+			Description: sql.NullString{String: it.Description, Valid: true},
+			FeedID:      feed.ID,
+			PublishedAt: pubDate,
+		})
+		var pqError *pq.Error
+		if errors.As(err, &pqError) {
+			if pqError.Code.Name() != "unique_violation" {
+				return pqError
+			}
+		}
 	}
 	log.Printf("Grabbed feed for %s\nTotal titles: %d\n", rssFeed.Channel.Title, len(rssFeed.Channel.Item))
 	return nil
