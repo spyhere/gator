@@ -54,3 +54,66 @@ func Test_extractCommand(t *testing.T) {
 		})
 	}
 }
+
+func Test_createStringifiedTable(t *testing.T) {
+	tests := []struct {
+		name    string
+		title   []string
+		content [][]string
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "should return formatted table",
+			title:   []string{"ID", "First Name"},
+			content: [][]string{{"1", "Jarvis"}},
+			want:    "|ID||-First Name--|\n 1      Jarvis     \n",
+			wantErr: false,
+		},
+		{
+			name:    "should correctly space columns with padding when content is bigger that title",
+			title:   []string{"ID", "report"},
+			content: [][]string{{"uuid-1234-5678", "feeling good and alive"}},
+			want:    "|------ID-------||--------report---------|\n uuid-1234-5678   feeling good and alive  \n",
+			wantErr: false,
+		},
+		{
+			name:    "should correctly detect the longest content and space columns with padding",
+			title:   []string{"ID", "report"},
+			content: [][]string{{"1", "status is nominal"}, {"uuid-1234", "gud"}},
+			want:    "|----ID----||------report------|\n     1       status is nominal  \n uuid-1234          gud         \n",
+			wantErr: false,
+		},
+		{
+			name:    "should give an error when title has less columns than content",
+			title:   []string{"ID"},
+			content: [][]string{{"1", "another column"}},
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "should return empty string when no content were given",
+			title:   []string{"ID"},
+			content: [][]string{},
+			want:    "",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, gotErr := createStringifiedTable(tt.title, tt.content)
+			if gotErr != nil {
+				if !tt.wantErr {
+					t.Errorf("formatContentWithTitle() failed: %v", gotErr)
+				}
+				return
+			}
+			if tt.wantErr {
+				t.Fatal("formatContentWithTitle() succeeded unexpectedly")
+			}
+			if got != tt.want {
+				t.Errorf("formatContentWithTitle() = \n%v \nwant \n%v", got, tt.want)
+			}
+		})
+	}
+}
