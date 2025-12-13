@@ -117,3 +117,63 @@ func Test_createStringifiedTable(t *testing.T) {
 		})
 	}
 }
+
+func Test_assembleFormattedRow(t *testing.T) {
+	tests := []struct {
+		name     string
+		row      []string
+		measures []int
+		border   string
+		padding  string
+		want     string
+	}{
+		{
+			name:     "should assemble row with 2 columns and 3 borders feeling free space with padding",
+			row:      []string{"ID", "Name"},
+			measures: []int{6, 9},
+			border:   "$",
+			padding:  ".",
+			want:     "$.ID.$..Name..$",
+		},
+		{
+			name:     "should not assemmble row without padding since it's not enough space ",
+			row:      []string{"ID", "Name"},
+			measures: []int{4, 5},
+			border:   "$",
+			padding:  ".",
+			want:     "$ID$Name$",
+		},
+		{
+			name:     "should not add borders and padding if there is not enough space",
+			row:      []string{"ID", "Name"},
+			measures: []int{2, 4},
+			border:   "$",
+			padding:  ".",
+			want:     "IDName",
+		},
+		{
+			name:     "should support complex borders and padding",
+			row:      []string{"ID", "Name"},
+			measures: []int{14, 16},
+			border:   "#^#",
+			padding:  "+-+",
+			want:     "#^#+-+ID+-+#^#+-+Name+-+#^#",
+		},
+		{
+			name:     "should add 1 more padding at the right side when padding space is not equal for both sides",
+			row:      []string{"ID", "Age"},
+			measures: []int{6, 7},
+			border:   "$",
+			padding:  "-",
+			want:     "$-ID-$-Age--$",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := assembleFormattedRow(tt.row, tt.measures, tt.border, tt.padding)
+			if got != tt.want {
+				t.Errorf("assembleFormattedRow() = \n%v\nwant\n%v", got, tt.want)
+			}
+		})
+	}
+}
