@@ -28,9 +28,14 @@ func createStringifiedTable(title []string, content [][]string) (string, error) 
 		return "", fmt.Errorf("Title cannot has les entries that content! Title %v\nContent %v", title, content)
 	}
 	measures := make([]int, len(content[0]))
-	bordersChars := 2
 	for _, entry := range content {
+		entryLen := len(entry)
+		lastEntryIdx := entryLen - 1
 		for idx, it := range entry {
+			bordersChars := 2
+			if (idx == 0 && entryLen > 2) || idx == lastEntryIdx {
+				bordersChars = 1
+			}
 			curLen := max(len(it)+bordersChars, len(title[idx])+bordersChars)
 			if curLen > measures[idx] {
 				measures[idx] = curLen
@@ -50,7 +55,6 @@ func assembleFormattedRow(row []string, measures []int, border string, padding s
 	res := ""
 	rowLen := len(row)
 	lastIndex := rowLen - 1
-	borderLen := len(border) * 2
 	for idx, it := range row {
 		leftBorder := border
 		rightBorder := border
@@ -59,19 +63,19 @@ func assembleFormattedRow(row []string, measures []int, border string, padding s
 		} else if idx == lastIndex {
 			leftBorder = ""
 		}
-		rem := measures[idx] - len(it) - borderLen
+		rem := measures[idx] - len(it) - (len(leftBorder) + len(rightBorder))
 		if rem < 0 {
 			res += it
 			continue
 		}
 		half := int(float64(rem) / 2)
-		half /= len(padding)
+		paddingLen := len(padding)
 		res += fmt.Sprintf(
 			"%v%s%s%s%v",
 			leftBorder,
-			strings.Repeat(padding, half),
+			strings.Repeat(padding, half/paddingLen),
 			it,
-			strings.Repeat(padding, half+rem-(2*half)),
+			strings.Repeat(padding, (half+rem-(2*half))/paddingLen),
 			rightBorder,
 		)
 	}
