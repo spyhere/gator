@@ -74,15 +74,15 @@ func handleUsers(state *state, _ command) error {
 	if err != nil {
 		return err
 	}
-	res := ""
+	var res strings.Builder
 	for _, it := range users {
 		isCurrent := ""
 		if it.Name == state.cfg.CurrentUserName {
 			isCurrent = "(current)"
 		}
-		res += fmt.Sprintf("* %s %s\n", it.Name, isCurrent)
+		fmt.Fprintf(&res, "* %s %s\n", it.Name, isCurrent)
 	}
-	fmt.Print(res)
+	fmt.Print(res.String())
 	return nil
 }
 

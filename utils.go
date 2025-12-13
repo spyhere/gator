@@ -43,16 +43,16 @@ func createStringifiedTable(title []string, content [][]string) (string, error) 
 		}
 	}
 	titleBody := assembleFormattedRow(title, measures, "|", "-")
-	contentBody := ""
+	var contentBody strings.Builder
 	for _, entry := range content {
 		entryStr := assembleFormattedRow(entry, measures, " ", " ")
-		contentBody += entryStr + "\n"
+		contentBody.WriteString(entryStr + "\n")
 	}
-	return titleBody + "\n" + contentBody, nil
+	return titleBody + "\n" + contentBody.String(), nil
 }
 
 func assembleFormattedRow(row []string, measures []int, border string, padding string) string {
-	res := ""
+	var res strings.Builder
 	rowLen := len(row)
 	lastIndex := rowLen - 1
 	for idx, it := range row {
@@ -65,19 +65,17 @@ func assembleFormattedRow(row []string, measures []int, border string, padding s
 		}
 		rem := measures[idx] - len(it) - (len(leftBorder) + len(rightBorder))
 		if rem < 0 {
-			res += it
+			res.WriteString(it)
 			continue
 		}
 		half := int(float64(rem) / 2)
 		paddingLen := len(padding)
-		res += fmt.Sprintf(
-			"%v%s%s%s%v",
+		fmt.Fprintf(&res, "%v%s%s%s%v",
 			leftBorder,
 			strings.Repeat(padding, half/paddingLen),
 			it,
 			strings.Repeat(padding, (half+rem-(2*half))/paddingLen),
-			rightBorder,
-		)
+			rightBorder)
 	}
-	return res
+	return res.String()
 }
