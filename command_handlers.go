@@ -119,7 +119,7 @@ func handleAddFeed(state *state, cmd command, user database.User) error {
 		return err
 	}
 	body := [][]string{{feed.Name, feed.Url, feed.UpdatedAt.Format(TIME_FORMAT)}}
-	res, err := formatContentWithTitle([]string{"Name", "Url", "Updated At"}, body)
+	res, err := createStringifiedTable([]string{"Name", "Url", "Updated At"}, body)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func handleFeeds(state *state, _ command) error {
 	for _, it := range feeds {
 		content = append(content, []string{it.Name, it.Url, it.Creator})
 	}
-	res, err := formatContentWithTitle([]string{"Name", "URL", "Creator"}, content)
+	res, err := createStringifiedTable([]string{"Name", "URL", "Creator"}, content)
 	if err != nil {
 		return err
 	}
@@ -167,7 +167,7 @@ func handleFollow(state *state, cmd command, user database.User) error {
 		return err
 	}
 	body := [][]string{{feedFollow.UserName, feedFollow.FeedName, feedFollow.UpdatedAt.Format(TIME_FORMAT)}}
-	res, err := formatContentWithTitle([]string{"User", "Feed", "Updated At"}, body)
+	res, err := createStringifiedTable([]string{"User", "Feed", "Updated At"}, body)
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func handleFollowing(state *state, _ command, user database.User) error {
 	for _, it := range feeds {
 		body = append(body, []string{it.FeedName, it.Url, it.UpdatedAt.Format(TIME_FORMAT)})
 	}
-	res, err := formatContentWithTitle([]string{"Feed", "Url", "Updated At"}, body)
+	res, err := createStringifiedTable([]string{"Feed", "Url", "Updated At"}, body)
 	if err != nil {
 		return err
 	}

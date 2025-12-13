@@ -20,7 +20,7 @@ func extractCommand(args []string) (command, error) {
 	}, nil
 }
 
-func formatContentWithTitle(title []string, content [][]string) (string, error) {
+func createStringifiedTable(title []string, content [][]string) (string, error) {
 	if len(content) == 0 {
 		return "", nil
 	}
