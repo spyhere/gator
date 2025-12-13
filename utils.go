@@ -31,10 +31,7 @@ func createStringifiedTable(title []string, content [][]string) (string, error) 
 	bordersChars := 2
 	for _, entry := range content {
 		for idx, it := range entry {
-			curLen := len(it) + bordersChars
-			if curLen <= len(title[idx]) {
-				curLen = len(title[idx]) + bordersChars*2
-			}
+			curLen := max(len(it)+bordersChars, len(title[idx])+bordersChars)
 			if curLen > measures[idx] {
 				measures[idx] = curLen
 			}
@@ -56,8 +53,14 @@ func createStringifiedTable(title []string, content [][]string) (string, error) 
 }
 
 func assembleFormattedString(str string, length int, border string, padding string) string {
-	borderLen := len(border)
+	if len(padding) > 1 {
+		return str
+	}
+	borderLen := len(border) * 2
 	rem := length - borderLen - len(str)
+	if rem < 0 {
+		return str
+	}
 	half := int(float64(rem) / 2)
 	return fmt.Sprintf(
 		"%v%s%s%s%v",
