@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -80,13 +81,19 @@ func handleUsers(state *state, _ command) error {
 	return nil
 }
 
-func handleAgg(state *state, _ command) error {
-	rssFeed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
-	if err != nil {
-		return err
+func handleAgg(state *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("Expecting [time between requests] argument")
 	}
-	fmt.Printf("%v\n", *rssFeed)
-	return nil
+	timeBetweenReq, err := time.ParseDuration(cmd.args[0])
+	if err != nil {
+		return fmt.Errorf("Incorrect time interval!\nExample: 300ms, 5m, 1h")
+	}
+	fmt.Println("Collecting feeds every", timeBetweenReq)
+	ticker := time.NewTicker(timeBetweenReq)
+	for ; ; <-ticker.C {
+		scrapeFeeds(state)
+	}
 }
 
 func handleAddFeed(state *state, cmd command, user database.User) error {
@@ -210,5 +217,24 @@ func handleUnfollow(state *state, cmd command, user database.User) error {
 		return fmt.Errorf("You are not following current feed")
 	}
 	fmt.Println("You have successfully unfollowed", url)
+	return nil
+}
+
+func scrapeFeeds(state *state) error {
+	ctx := context.Background()
+	feed, err := state.db.GetNextFeedToFetch(ctx)
+	if err != nil {
+		return err
+	}
+	rssFeed, err := rss.FetchFeed(ctx, feed.Url)
+	if err != nil {
+		return err
+	}
+	err = state.db.MarkFeedFetched(ctx, feed.ID)
+	fmt.Println(rssFeed.Channel.Title)
+	for _, it := range rssFeed.Channel.Item {
+		fmt.Println(it)
+	}
+	log.Printf("Grabbed feed for %s\nTotal titles: %d\n", rssFeed.Channel.Title, len(rssFeed.Channel.Item))
 	return nil
 }
