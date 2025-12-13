@@ -77,23 +77,3 @@ func assembleFormattedRow(row []string, measures []int, border string, padding s
 	}
 	return res
 }
-
-func assembleFormattedString(str string, length int, border string, padding string) string {
-	if len(padding) > 1 {
-		return str
-	}
-	borderLen := len(border) * 2
-	rem := length - borderLen - len(str)
-	if rem < 0 {
-		return str
-	}
-	half := int(float64(rem) / 2)
-	return fmt.Sprintf(
-		"%v%s%s%s%v",
-		border,
-		strings.Repeat(padding, half),
-		str,
-		strings.Repeat(padding, half+rem-(2*half)),
-		border,
-	)
-}
