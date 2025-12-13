@@ -8,5 +8,6 @@ SELECT * FROM posts
 WHERE feed_id IN (
   SELECT feed_id FROM feed_follows
   WHERE user_id = $1
-);
+)
+LIMIT $2;
 
