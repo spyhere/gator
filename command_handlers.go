@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -223,6 +224,32 @@ func handleUnfollow(state *state, cmd command, user database.User) error {
 		return fmt.Errorf("You are not following current feed")
 	}
 	fmt.Println("You have successfully unfollowed", url)
+	return nil
+}
+
+func handleBrowse(state *state, cmd command, user database.User) error {
+	var limit int32 = 2
+	if len(cmd.args) > 0 {
+		givenLimit, err := strconv.ParseInt(cmd.args[0], 10, 32)
+		if err != nil {
+			return err
+		}
+		limit = int32(givenLimit)
+	}
+	posts, err := state.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit:  limit,
+	})
+	fmt.Printf("Posts: %d\n\n", len(posts))
+	if err != nil {
+		return err
+	}
+	for _, it := range posts {
+		fmt.Printf(
+			"Title: %s\nUrl: %s\nDescription: %s\nPublished at: %s\nUpdated: %v\n\n",
+			it.Title, it.Url, it.Description.String, it.PublishedAt.Format(TIME_FORMAT), it.UpdatedAt.Format(TIME_FORMAT),
+		)
+	}
 	return nil
 }
 
