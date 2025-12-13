@@ -37,19 +37,45 @@ func createStringifiedTable(title []string, content [][]string) (string, error) 
 			}
 		}
 	}
-	titleBody := ""
-	for idx, it := range title {
-		titleBody += assembleFormattedString(it, measures[idx], "|", "-")
-	}
+	titleBody := assembleFormattedRow(title, measures, "|", "-")
 	contentBody := ""
 	for _, entry := range content {
-		entryStr := ""
-		for idx, it := range entry {
-			entryStr += assembleFormattedString(it, measures[idx], " ", " ")
-		}
+		entryStr := assembleFormattedRow(entry, measures, " ", " ")
 		contentBody += entryStr + "\n"
 	}
 	return titleBody + "\n" + contentBody, nil
+}
+
+func assembleFormattedRow(row []string, measures []int, border string, padding string) string {
+	res := ""
+	rowLen := len(row)
+	lastIndex := rowLen - 1
+	borderLen := len(border) * 2
+	for idx, it := range row {
+		leftBorder := border
+		rightBorder := border
+		if idx == 0 && rowLen > 2 {
+			rightBorder = ""
+		} else if idx == lastIndex {
+			leftBorder = ""
+		}
+		rem := measures[idx] - len(it) - borderLen
+		if rem < 0 {
+			res += it
+			continue
+		}
+		half := int(float64(rem) / 2)
+		half /= len(padding)
+		res += fmt.Sprintf(
+			"%v%s%s%s%v",
+			leftBorder,
+			strings.Repeat(padding, half),
+			it,
+			strings.Repeat(padding, half+rem-(2*half)),
+			rightBorder,
+		)
+	}
+	return res
 }
 
 func assembleFormattedString(str string, length int, border string, padding string) string {
