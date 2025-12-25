@@ -20,6 +20,10 @@ func extractCommand(args []string) (command, error) {
 	}, nil
 }
 
+func strlen(input string) int {
+	return strings.Count(input, "") - 1
+}
+
 func createStringifiedTable(title []string, content [][]string) (string, error) {
 	if len(content) == 0 {
 		return "", nil
@@ -33,10 +37,10 @@ func createStringifiedTable(title []string, content [][]string) (string, error) 
 		lastEntryIdx := entryLen - 1
 		for idx, it := range entry {
 			bordersChars := 2
-			if (idx == 0 && entryLen > 2) || idx == lastEntryIdx {
+			if idx != lastEntryIdx {
 				bordersChars = 1
 			}
-			curLen := max(len(it)+bordersChars, len(title[idx])+bordersChars)
+			curLen := max(strlen(it)+bordersChars, strlen(title[idx])+bordersChars)
 			if curLen > measures[idx] {
 				measures[idx] = curLen
 			}
@@ -58,12 +62,10 @@ func assembleFormattedRow(row []string, measures []int, border string, padding s
 	for idx, it := range row {
 		leftBorder := border
 		rightBorder := border
-		if idx == 0 && rowLen > 2 {
+		if idx != lastIndex {
 			rightBorder = ""
-		} else if idx == lastIndex {
-			leftBorder = ""
 		}
-		rem := measures[idx] - len(it) - (len(leftBorder) + len(rightBorder))
+		rem := measures[idx] - strlen(it) - (len(leftBorder) + len(rightBorder))
 		if rem < 0 {
 			res.WriteString(it)
 			continue
@@ -75,7 +77,8 @@ func assembleFormattedRow(row []string, measures []int, border string, padding s
 			strings.Repeat(padding, half/paddingLen),
 			it,
 			strings.Repeat(padding, (half+rem-(2*half))/paddingLen),
-			rightBorder)
+			rightBorder,
+		)
 	}
 	return res.String()
 }
